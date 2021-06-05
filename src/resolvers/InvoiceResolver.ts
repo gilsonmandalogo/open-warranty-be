@@ -1,5 +1,5 @@
 import { host } from 'consts';
-import { createWriteStream } from 'fs';
+import { createWriteStream, rm } from 'fs';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import { CreateInvoiceInput, Invoice, InvoiceAllResult, InvoicePaginated, UpdateInvoiceInput } from 'models/Invoice';
 import { parse, resolve } from 'path';
@@ -76,6 +76,8 @@ export class InvoiceResolver {
       throw new Error('Invoice not found');
     }
     await Invoice.remove(invoice);
+    const diskFileName = resolve(`./public/images/${parse(invoice.photo).base}`);
+    await new Promise(resolve => rm(diskFileName, resolve));
     return true;
   }
 
