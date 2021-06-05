@@ -1,38 +1,24 @@
 import { host } from 'consts';
 import { createWriteStream } from 'fs';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
-import { Invoice } from 'models/Invoice';
+import { CreateInvoiceInput, Invoice, InvoiceAllResult, InvoicePaginated, UpdateInvoiceInput } from 'models/Invoice';
 import { parse, resolve } from 'path';
-import { Arg, Field, InputType, Int, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Int, Mutation, Query, Resolver } from 'type-graphql';
 
-@InputType()
-export class CreateInvoiceInput implements Partial<Invoice> {
-  @Field()
-  photo: string;
+const calculateExpDateAndProgress = (item: Invoice) => {
+  if (!item.purchase || !item.duration) {
+    return {
+      expDate: null,
+      progress: null,
+    };
+  }
 
-  @Field()
-  item: string;
-
-  @Field(() => Int, { nullable: true })
-  duration?: number;
-
-  @Field({ nullable: true })
-  purchase?: Date;
-}
-
-@InputType()
-export class UpdateInvoiceInput implements Partial<Invoice> {
-  @Field({ nullable: true })
-  photo?: string;
-
-  @Field({ nullable: true })
-  item?: string;
-
-  @Field(() => Int, { nullable: true })
-  duration?: number;
-
-  @Field({ nullable: true })
-  purchase?: Date;
+  const expDate = new Date(item.purchase);
+  const now = new Date();
+  expDate.setUTCMonth(expDate.getUTCMonth() + item.duration);
+  // @ts-ignore
+  const progress = (now - item.purchase) / (expDate - item.purchase);
+  return {expDate, progress};
 }
 
 @Resolver()
@@ -40,6 +26,29 @@ export class InvoiceResolver {
   @Query(() => Invoice)
   invoice(@Arg('id') id: string) {
     return Invoice.findOne(id);
+  }
+
+  @Query(() => InvoicePaginated)
+  async invoiceAll(@Arg("skip", () => Int, { nullable: true }) skip?: number) {
+    const [itemsDb, total] = await Invoice.findAndCount({
+      skip,
+      take: 10,
+    });
+
+    const items = itemsDb.map(item => {
+      const { expDate, progress } = calculateExpDateAndProgress(item);
+      return {
+        ...item,
+        expDate,
+        progress,
+      } as InvoiceAllResult;
+    });
+
+    return {
+      items,
+      total,
+      hasMore: skip ? (skip + items.length) < total : items.length < total,
+    } as InvoicePaginated;
   }
 
   @Mutation(() => Invoice)
