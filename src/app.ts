@@ -7,8 +7,12 @@ import { InvoiceResolver } from 'resolvers/InvoiceResolver';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 
+process.title = 'Warranty';
+process.on('uncaughtException', e => console.error('uncaughtException:', e));
+process.on('unhandledRejection', e => console.error('unhandledRejection:', e));
+
 async function startServer() {
-  await createConnection();
+  const connection = await createConnection();
   const schema = await buildSchema({
     resolvers: [
       InvoiceResolver,
@@ -25,10 +29,22 @@ async function startServer() {
   apollo.applyMiddleware({ app });
 
   app.listen(port, () => {
-    console.log(`🚀 Server ready at ${host}${apollo.graphqlPath}`);
+    console.log(`🚀 Server ready at ${host}\nApollo server ready at ${host}${apollo.graphqlPath}`);
   }).on('error', error => {
     console.error(error);
   });
+
+  const signals: Array<NodeJS.Signals> = ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT', 'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'];
+
+  for (const signal of signals) {
+    process.on(signal, async () => {
+      console.log(`Received ${signal} — Stopping server...`);
+      await apollo.stop();
+      await connection.close();
+      console.log('Server stopped');
+      process.exit(0);
+    });
+  }
 }
 
 startServer();

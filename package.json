@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "NODE_PATH=./src nodemon -w src --ext ts --exec ts-node src/app.ts"
+    "start": "NODE_PATH=./src nodemon -w src --ext ts --exec ts-node src/app.ts",
+    "start:prod": "NODE_PATH=./src ts-node src/app.ts"
   },
   "dependencies": {
     "apollo-server-express": "^2.25.0",
@@ -14,10 +15,11 @@
     "express": "^4.17.1",
     "graphql": "^15.5.0",
     "graphql-upload": "^12.0.0",
+    "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "type-graphql": "^1.1.1",
-    "typeorm": "^0.2.33"
+    "typeorm": "^0.2.34"
   },
   "devDependencies": {
     "@types/graphql-upload": "^8.0.4",
