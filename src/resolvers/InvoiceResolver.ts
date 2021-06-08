@@ -1,4 +1,3 @@
-import { host } from 'consts';
 import { createWriteStream, rm } from 'fs';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import { CreateInvoiceInput, Invoice, InvoiceAllResult, InvoicePaginated, UpdateInvoiceInput } from 'models/Invoice';
@@ -89,7 +88,7 @@ export class InvoiceResolver {
     return await new Promise<string>((resolve, reject) => {
       file.createReadStream().pipe(diskFileStream)
         .on('finish', () => {
-          resolve(`${host}/images/${parse(diskFileName).base}`);
+          resolve(`/images/${parse(diskFileName).base}`);
         })
         .on('error', reject);
     });
