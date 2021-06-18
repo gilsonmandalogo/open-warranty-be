@@ -7,7 +7,8 @@
   "private": false,
   "scripts": {
     "start": "NODE_PATH=./src nodemon -w src --ext ts --exec ts-node src/app.ts",
-    "start:prod": "NODE_PATH=./src ts-node src/app.ts"
+    "start:prod": "NODE_PATH=./src ts-node src/app.ts",
+    "test": "jest"
   },
   "dependencies": {
     "apollo-server-express": "^2.25.1",
@@ -23,8 +24,11 @@
   },
   "devDependencies": {
     "@types/graphql-upload": "^8.0.5",
+    "@types/jest": "^26.0.23",
+    "jest": "^27.0.4",
     "nodemon": "^2.0.7",
+    "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.4"
   }
 }

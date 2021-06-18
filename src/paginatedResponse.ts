@@ -6,10 +6,10 @@ export function paginatedResponse<TItemsFieldValue>(
   // `isAbstract` decorator option is mandatory to prevent registering in schema
   @ObjectType({ isAbstract: true })
   abstract class PaginatedResponseClass {
-    @Field(() => [itemsFieldValue])
+    @Field( /* istanbul ignore next */ () => [itemsFieldValue])
     items: TItemsFieldValue[];
 
-    @Field(() => Int)
+    @Field( /* istanbul ignore next */ () => Int)
     total: number;
 
     @Field()

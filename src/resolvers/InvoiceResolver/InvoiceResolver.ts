@@ -1,3 +1,4 @@
+import { ErrorInvoiceNotFound } from 'errors';
 import { createWriteStream, rm } from 'fs';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import { CreateInvoiceInput, Invoice, InvoiceAllResult, InvoicePaginated, UpdateInvoiceInput } from 'models/Invoice';
@@ -22,13 +23,13 @@ const calculateExpDateAndProgress = (item: Invoice) => {
 
 @Resolver()
 export class InvoiceResolver {
-  @Query(() => Invoice)
+  @Query( /* istanbul ignore next */ () => Invoice)
   invoice(@Arg('id') id: string) {
     return Invoice.findOne(id);
   }
 
-  @Query(() => InvoicePaginated)
-  async invoiceAll(@Arg("skip", () => Int, { nullable: true }) skip?: number) {
+  @Query( /* istanbul ignore next */ () => InvoicePaginated)
+  async invoiceAll(@Arg("skip", /* istanbul ignore next */ () => Int, { nullable: true }) skip?: number) {
     const [itemsDb, total] = await Invoice.findAndCount({
       skip,
       take: 10,
@@ -50,29 +51,29 @@ export class InvoiceResolver {
     } as InvoicePaginated;
   }
 
-  @Mutation(() => Invoice)
+  @Mutation( /* istanbul ignore next */ () => Invoice)
   async createInvoice(@Arg('data') data: CreateInvoiceInput) {
     const invoice = Invoice.create(data);
     await Invoice.save(invoice);
     return invoice;
   }
 
-  @Mutation(() => Invoice)
+  @Mutation( /* istanbul ignore next */ () => Invoice)
   async updateInvoice(@Arg('id') id: string, @Arg('data') data: UpdateInvoiceInput) {
     const invoice = await Invoice.findOne(id);
     if (!invoice) {
-      throw new Error('Invoice not found');
+      throw new ErrorInvoiceNotFound();
     }
     Object.assign(invoice, data);
     await Invoice.save(invoice);
     return invoice;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation( /* istanbul ignore next */ () => Boolean)
   async deleteInvoice(@Arg('id') id: string) {
     const invoice = await Invoice.findOne(id);
     if (!invoice) {
-      throw new Error('Invoice not found');
+      throw new ErrorInvoiceNotFound();
     }
     await Invoice.remove(invoice);
     const diskFileName = resolve(`./public/images/${parse(invoice.photo).base}`);
@@ -80,8 +81,8 @@ export class InvoiceResolver {
     return true;
   }
 
-  @Mutation(() => String)
-  async upload(@Arg('file', () => GraphQLUpload) file: FileUpload) {
+  @Mutation( /* istanbul ignore next */ () => String)
+  async upload(@Arg('file', /* istanbul ignore next */ () => GraphQLUpload) file: FileUpload) {
     const ext = parse(file.filename).ext;
     const diskFileName = resolve(`./public/images/${Date.now()}${ext}`);
     const diskFileStream = createWriteStream(diskFileName);
