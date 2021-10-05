@@ -7,8 +7,10 @@
   "private": false,
   "scripts": {
     "start": "NODE_PATH=./src nodemon -w src --ext ts --exec ts-node src/app.ts",
-    "start:prod": "NODE_PATH=./src ts-node src/app.ts",
-    "test": "jest"
+    "start:prod": "NODE_PATH=./build/src NODE_ENV=production node build/src/app.js",
+    "test": "jest",
+    "build": "rm -rf build && tsc",
+    "build:docker": "yarn build && docker build -t gilsonmjr/warranty:latest ."
   },
   "dependencies": {
     "apollo-server-express": "^2.25.1",

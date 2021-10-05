@@ -4,3 +4,4 @@ public/static
 .vscode
 data
 coverage
+build/

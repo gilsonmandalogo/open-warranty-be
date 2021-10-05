@@ -1,10 +1,11 @@
+import { entities } from 'config';
 import { createConnection, getConnection } from "typeorm";
 
 beforeAll(async () => {
   await createConnection({
     type: 'sqlite',
     database: ':memory:',
-    entities: ['./src/models/*.ts'],
+    entities,
   });
 });
 
