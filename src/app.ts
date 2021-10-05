@@ -1,5 +1,5 @@
 import { ApolloServer } from 'apollo-server-express';
-import { maxFiles, maxFileSize, port } from 'config';
+import { entities, maxFiles, maxFileSize, port } from 'config';
 import express from 'express';
 import { graphqlUploadExpress } from 'graphql-upload';
 import 'reflect-metadata';
@@ -7,7 +7,7 @@ import { InvoiceResolver } from 'resolvers/InvoiceResolver';
 import { buildSchema } from 'type-graphql';
 import { createConnection, getConnectionOptions } from 'typeorm';
 
-process.title = 'Warranty';
+process.title = 'Open-Warranty';
 process.on('uncaughtException', e => console.error('uncaughtException:', e));
 process.on('unhandledRejection', e => console.error('unhandledRejection:', e));
 
@@ -17,7 +17,7 @@ async function startServer() {
   const connectionOptions = await getConnectionOptions();
   const connection = await createConnection({
     ...connectionOptions,
-    entities: ['./src/models/*.ts'],
+    entities,
     synchronize: true,
   });
   const schema = await buildSchema({
@@ -25,10 +25,7 @@ async function startServer() {
       InvoiceResolver,
     ],
   });
-  const apollo = new ApolloServer({
-    schema,
-    uploads: false,
-  });
+  const apollo = new ApolloServer({ schema });
   await apollo.start();
   const app = express();
   app.use(express.static('public'));
